@@ -24,7 +24,7 @@ public class FrmCaptura extends javax.swing.JFrame {
         initComponents();  
         try{
             //===>Crear objeto y conectar con el servidor.
-            // cliente = new Cliente("localhost", 5000);
+             cliente = new Cliente("localhost", 5000);
         }catch(Exception ex){
             JOptionPane.showMessageDialog(this, ex.toString(),"Error al conectar con el servidor",JOptionPane.PLAIN_MESSAGE);
         }
@@ -182,11 +182,6 @@ public class FrmCaptura extends javax.swing.JFrame {
     private void cmdEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdEnviarActionPerformed
         // TODO add your handling code here:
         try{
-            Socket s = new Socket("127.0.0.1",5000);
-            PrintWriter p = new PrintWriter(s.getOutputStream());
-            
-           
-            
 //           Cliente cl = new Cliente("localhost", 5000);
         producto.limpiar();//===>Limpiar el contenido
         
@@ -200,8 +195,7 @@ public class FrmCaptura extends javax.swing.JFrame {
         producto.cantidad = this.txtCantidad.getText();
         
         //===>Enviar la informacion del producto al servidor.
-//        cl.enviarProducto(producto);
-        p.println(producto.toString());
+        cliente.enviarProducto(producto);
         }catch(Exception ex){
             
         }

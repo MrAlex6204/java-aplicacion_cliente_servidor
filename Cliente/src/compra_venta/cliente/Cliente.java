@@ -31,6 +31,7 @@ public class Cliente {
     public void enviarProducto(Producto producto){
         try{
             System.out.println(producto.toString());
+             write.write(producto.toString());
             write.println(producto.toString());
             write.flush();
         }catch(Exception ex){

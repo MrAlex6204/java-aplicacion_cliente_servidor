@@ -5,8 +5,6 @@
  */
 package compra_venta.cliente;
 
-import java.io.*;
-import java.net.*;
 
 /**
  *
@@ -20,22 +18,9 @@ public class Launcher {
     public static void main(String[] args) {
         // TODO code application logic here
         try{
-        Socket s = new Socket("127.0.0.1",5000);
-        PrintWriter p = new PrintWriter(s.getOutputStream());
-        Producto prod = new Producto();
-//        FrmCaptura frmCaptura = new FrmCaptura();
+        FrmCaptura frmCaptura = new FrmCaptura();
         
-        prod.nombre = "Oscar";
-        prod.apellido = "Vera";
-        prod.cedula = "6204";
-        prod.producto = "Jabon";
-        prod.cantidad = "50";
-        prod.precio  = "2";
-        p.println("dwdwd");
-        p.write("Hello Again");
-        p.flush();
-        System.out.println(prod.toString());
-//        frmCaptura.showWnd();
+        frmCaptura.showWnd();
         }catch(Exception ex){
             System.out.println(ex.toString());
         }
