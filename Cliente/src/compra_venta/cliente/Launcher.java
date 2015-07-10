@@ -18,9 +18,16 @@ public class Launcher {
     public static void main(String[] args) {
         // TODO code application logic here
         try{
-        FrmCaptura frmCaptura = new FrmCaptura();
+        //===>Creamos una nueva instancia de nuestra ventana
+        final FrmCaptura frmCaptura = new FrmCaptura();
         
-        frmCaptura.showWnd();
+        //===>Indicamos el titulo de la ventana
+        frmCaptura.setTitle("\t** Aplicacion cliente **");
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {                
+               frmCaptura.setVisible(true);
+            }
+        });
         }catch(Exception ex){
             System.out.println(ex.toString());
         }
