@@ -37,9 +37,17 @@ public class Cliente {
         _transaccion = transaccion;
     }
     
+    public void consultarTransacciones(){
+        //===>Indicarle al servidor que requerimos de una consulta.
+            try {
+            _write.println("CONSULTAR_TRANSACCIONES");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.toString(), "Error al enviar informacion al servidor", JOptionPane.PLAIN_MESSAGE);
+        }
+            
+    }
     public void enviarProducto(Producto producto) {
         try {
-            System.out.println(producto.toString());
             _write.println(producto.toString());
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, ex.toString(), "Error al enviar informacion al servidor", JOptionPane.PLAIN_MESSAGE);

@@ -16,8 +16,49 @@ import javax.swing.JOptionPane;
  */
 public class FrmCaptura extends javax.swing.JFrame {
 
+    //===>Indicamos la IP o Nombre del servidor
+    private static final String SERVIDOR = "localhost";
+    //===>Indicamos en que puerto IP esta conectado el servidor.
+    private static final int PUERTO_IP = 5000;
+
     private Cliente _cliente = null;//===>Objeto cliente que mantendra la conexion con el servidor.
     private Producto _producto = new Producto();//===>Objeto producto.
+
+    //===>Creamos un nuevo evento para leer las transacciones entrantes del servidor
+    private Cliente.ITransaccionEntrante _transaccionEntrante
+            = new Cliente.ITransaccionEntrante() {
+
+                @Override
+                public void Transaccion(String transaccion) {
+
+                    if (transaccion.contains("REGISTRO|")) {
+                        transaccion = transaccion.replace("REGISTRO|", "");//===>Eliminar instruccion del texto
+                        String[] informacion = transaccion.split("\\|");
+                        //===>Agregamos la informacion recibida por el server
+                        //y le damos formato.
+                        txtTransacciones.append(
+                                informacion[0].toUpperCase() + " " + informacion[1].toUpperCase()
+                                + " CEDULA:" + informacion[2] + "\n"
+                                + "\t " + informacion[3].toUpperCase() + "\n"
+                                + "\t $" + informacion[4] + " X $" + informacion[5] + " = " + informacion[6] + "\n"
+                                + "\t Hra. de Transaccion:" + informacion[7] + "\n\n"
+                        );
+                    }
+                    if (transaccion.contains("FACTURA|")) {
+                        transaccion = transaccion.replace("FACTURA|", "");//===>Eliminar instruccion del texto
+                        String[] registros = transaccion.split("\\|");
+                        //===>Limpiar y mostrar la factura
+                        txtTransacciones.setText("\t ** TRANSACCIONES REALIZADAS DEL DIA **\n\n");
+                        System.out.println("\t{\n\t\t ** FACTURA **");
+                        for (int idx = 0; idx <= registros.length - 1; idx++) {
+                            System.out.println("\t\t" + (idx + 1) + ".-" + registros[idx].toUpperCase());
+                            txtTransacciones.append((idx + 1) + ".-" + registros[idx].toUpperCase() + "\n");
+                        }
+                        System.out.println("\t}");
+                    }
+
+                }
+            };
 
     public FrmCaptura() {
         /* Set the Nimbus look and feel */
@@ -48,17 +89,11 @@ public class FrmCaptura extends javax.swing.JFrame {
         initComponents();
         try {
             //===>Crear objeto y conectar con el servidor.
-            _cliente = new Cliente("localhost", 5000);
-            
-            //===>Creamos un nuevo evento para leer las transacciones entrantes del servidor
-            _cliente.setTransaccionEntrante(new Cliente.ITransaccionEntrante() {
+            _cliente = new Cliente(SERVIDOR, PUERTO_IP);
 
-                @Override
-                public void Transaccion(String transaccion) {
-                    txtTransacciones.append(transaccion+"\n");
-                }
-            });
-            
+            //===>Establecemos donde sevan ir las transacciones entrantes.
+            _cliente.setTransaccionEntrante(_transaccionEntrante);
+
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.toString(), "Error al conectar con el servidor", JOptionPane.PLAIN_MESSAGE);
         }
@@ -89,6 +124,8 @@ public class FrmCaptura extends javax.swing.JFrame {
         cmdEnviar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtTransacciones = new javax.swing.JTextArea();
+        cmdLimpiar = new javax.swing.JButton();
+        cmdTransaccionesDelDia = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -136,7 +173,24 @@ public class FrmCaptura extends javax.swing.JFrame {
 
         txtTransacciones.setColumns(20);
         txtTransacciones.setRows(5);
+        txtTransacciones.setFocusable(false);
         jScrollPane1.setViewportView(txtTransacciones);
+
+        cmdLimpiar.setFont(cmdLimpiar.getFont().deriveFont((float)12));
+        cmdLimpiar.setText("Limpiar");
+        cmdLimpiar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmdLimpiarActionPerformed(evt);
+            }
+        });
+
+        cmdTransaccionesDelDia.setFont(cmdTransaccionesDelDia.getFont().deriveFont(cmdTransaccionesDelDia.getFont().getStyle() | java.awt.Font.BOLD, 12));
+        cmdTransaccionesDelDia.setText("Consultar transacciones del dia");
+        cmdTransaccionesDelDia.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmdTransaccionesDelDiaActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -149,7 +203,12 @@ public class FrmCaptura extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap(338, Short.MAX_VALUE)
+                        .addContainerGap()
+                        .addComponent(jScrollPane1))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(cmdLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(cmdEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(46, 46, 46)
@@ -176,10 +235,10 @@ public class FrmCaptura extends javax.swing.JFrame {
                                     .addComponent(txtNombre)
                                     .addComponent(txtApellido, javax.swing.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
                                     .addComponent(txtCedula))))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(0, 80, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jScrollPane1)))
+                        .addComponent(cmdTransaccionesDelDia, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -209,10 +268,14 @@ public class FrmCaptura extends javax.swing.JFrame {
                     .addComponent(txtProducto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(9, 9, 9)
+                .addComponent(cmdTransaccionesDelDia)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(cmdEnviar)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cmdEnviar)
+                    .addComponent(cmdLimpiar))
                 .addContainerGap())
         );
 
@@ -232,7 +295,7 @@ public class FrmCaptura extends javax.swing.JFrame {
     }
 
     private boolean estaVacio(String valor, String MsgError) {
-        if (valor.trim().replace("|", "").equals("") ||  valor == null) {
+        if (valor.trim().replace("|", "").equals("") || valor == null) {
             JOptionPane.showMessageDialog(this, MsgError, "Valor invalido", JOptionPane.PLAIN_MESSAGE);
             return true;
         } else {
@@ -246,14 +309,13 @@ public class FrmCaptura extends javax.swing.JFrame {
             _producto.limpiar();//===>Limpiar el contenido
 
             /*
-                    Realizar unas validaciones antes de enviar al servidor para que este no tenga problemas
-                    al realizar el calculo
-            */
-
+             Realizar unas validaciones antes de enviar al servidor para que este no tenga problemas
+             al realizar el calculo
+             */
             if (estaVacio(this.txtNombre.getText(), "El nombre no puede estar vacio") == true) {
                 return;
             }
-            
+
             if (estaVacio(this.txtApellido.getText(), "El apellido no puede estar vacio") == true) {
                 return;
             }
@@ -263,7 +325,7 @@ public class FrmCaptura extends javax.swing.JFrame {
             if (estaVacio(this.txtProducto.getText(), "El producto no puede estar vacio") == true) {
                 return;
             }
-            
+
             if (esNumerico(this.txtPrecio.getText().trim(), "El precio no tiene un valor valido") == false) {
                 return; //===>Salir para no continuar 
             }
@@ -294,8 +356,21 @@ public class FrmCaptura extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_cmdEnviarActionPerformed
 
+    private void cmdLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdLimpiarActionPerformed
+        // TODO add your handling code here:
+        txtTransacciones.setText("");
+    }//GEN-LAST:event_cmdLimpiarActionPerformed
+
+    private void cmdTransaccionesDelDiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdTransaccionesDelDiaActionPerformed
+        // TODO add your handling code here:
+        //===>Realizar la consulta de las transacciones del dia.
+        _cliente.consultarTransacciones();
+    }//GEN-LAST:event_cmdTransaccionesDelDiaActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cmdEnviar;
+    private javax.swing.JButton cmdLimpiar;
+    private javax.swing.JButton cmdTransaccionesDelDia;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

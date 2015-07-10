@@ -1,0 +1,4 @@
+Oscar,Vera,454564,Refresco,10,2,20.0,8:31:54 AM
+Oscar,Vera,454564,Frituras,5,2,10.0,8:32:1 AM
+Oscar,Vera,454564,Agua 2 Lts,15,1,15.0,8:32:15 AM
+Oscar ,Vera,4545,Papas Fritas,10,2,20.0,8:37:19 AM

@@ -25,7 +25,7 @@ public class Servidor {
         nombre
                 = "registrodeldia_"
                 + fecha.get(Calendar.DAY_OF_MONTH)
-                + (fecha.get(Calendar.MONTH)+1)
+                + (fecha.get(Calendar.MONTH) + 1)
                 + fecha.get(Calendar.YEAR)
                 + ".txt";
 
@@ -35,12 +35,40 @@ public class Servidor {
     public static void guardarRegistro(String filePath, String registro) throws IOException {
         //===>Guardar el registro en el archivo
         File factura = new File(filePath);
-        FileWriter streamWrite = new FileWriter(factura.getAbsoluteFile());
+        FileWriter streamWrite = new FileWriter(factura.getAbsoluteFile(),true);
         BufferedWriter write = new BufferedWriter(streamWrite);
 
-        write.write(registro.replace("|", ","));
+        write.write(registro.replace("|", ",")+"\n");
         write.close();
 
+    }
+
+    public static String leerFactura(String filePath) throws FileNotFoundException, IOException {
+        File factura = new File(filePath);
+        String contenido = "";
+
+        //===>Verificar si eaxiste
+        if (factura.getAbsoluteFile().exists()) {
+            FileReader streamReader = new FileReader(factura.getAbsoluteFile());
+            BufferedReader reader = new BufferedReader(streamReader);
+            String registro = "";
+
+            do {
+                registro = reader.readLine();
+
+                if (registro != null) {
+                    //===>Agregamos el registro leido al contenido y separado por "|"
+                    contenido += registro + "|";
+                }
+
+            } while (registro != null);
+
+        } else {
+
+            contenido = "No se a realizado ninguna transaccion aun!.";
+        }
+
+        return contenido;
     }
 
     public static String obtenerHra() {
@@ -90,23 +118,33 @@ public class Servidor {
 
                 //===>Leer todo lo que dice el cliente hasta que nos retorne un mensaje en null
                 while ((msg = reader.readLine()) != null) {
-                    String[] producto = msg.split("\\|");//===>Separamos la informacion que viene separa por "|"
 
-                    //===>Realizar el calculo de la transaccion
-                    double precio = Double.parseDouble(producto[4]);
-                    double cantidad = Double.parseDouble(producto[5]);
-                    double total = precio * cantidad;
-                    String registro = String.join("|", String.join("|", producto), total + "",obtenerHra());
+                    if (msg.contains("REGISTRO|")) {//===>Verificamos si el cliente envio un registro
+                        msg = msg.replace("REGISTRO|", "");//===>Eliminamos la intruccion REGISTRO del texto
 
-                    //===>Guardar registro en el archivo de factura.
-                    guardarRegistro(archivo, registro);
-                    //===>Enviar respuesta al cliente
-                    writer.println(registro);
-                    
-                    //===>Mostrar la transaccion en pantalla.
-                    System.out.println("\t" + registro);//===>Mostrar en pantalla el mensaje que nos envio el cliente
+                        String[] producto = msg.split("\\|");//===>Separamos la informacion que viene separa por "|"
+
+                        //===>Realizar el calculo de la transaccion
+                        double precio = Double.parseDouble(producto[4]);
+                        double cantidad = Double.parseDouble(producto[5]);
+                        double total = precio * cantidad;
+                        String registro = String.join("|", String.join("|", producto), total + "", obtenerHra());
+
+                        //===>Guardar registro en el archivo de factura.
+                        guardarRegistro(archivo, registro);
+                        //===>Enviar respuesta al cliente
+                        writer.println("REGISTRO|" + registro);
+                        //===>Mostrar la transaccion en pantalla.
+                        System.out.println("\t" + registro);//===>Mostrar en pantalla el mensaje que nos envio el cliente
+                    }
+
+                    if (msg.contains("CONSULTAR_TRANSACCIONES")) {//===>Realiza la consulta de las transaciones del dia.
+                        //===>Leemos el archivo de factura de las transacciones del dia
+                        String factura = "FACTURA|" + leerFactura(archivo);//===>Agrega el texto FACTURA\n para indicarle al cliente que es la consulta de lafactura
+                        writer.println(factura);
+                    }
                 }
-                System.out.println("\t *El cliente a cerrado session *");
+                System.out.println("\t * El cliente a cerrado session *");
                 System.out.println("}");
                 cliente.close();
                 System.out.println("\n");
