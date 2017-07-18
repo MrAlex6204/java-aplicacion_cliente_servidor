@@ -1,0 +1,7 @@
+Mr,Alex,101644,jabon,10,2,20.0,10:0:19 AM
+Mr,Alex,101644,cocacola,10,3,30.0,10:1:36 AM
+Mr,Alex,101644,Tortillas,12.5,1.5,18.75,10:3:7 AM
+Mr,Alex6204,11245,Jabon,10,1,10.0,10:9:49 AM
+Mr,Alex,1245545,Jabon,5,1,5.0,10:14:30 AM
+Mr,Alex,1245545,Refresco,10.5,1,10.5,10:14:40 AM
+Mr,Alex,1245545,Foco,10,5,50.0,10:14:56 AM
